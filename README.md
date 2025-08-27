@@ -4,8 +4,6 @@ AI-powered sepsis detection using n8n, FHIR, and OpenRouter
 
 Real-time sepsis detection using n8n, FHIR, OpenRouter, and PostgreSQL with Slack alerts.
 
-📊 Live Demo
-[![Demo Video]
 
 🛠️ Tech Stack
 - n8n: Workflow automation
