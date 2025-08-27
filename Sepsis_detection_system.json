@@ -1,0 +1,557 @@
+{
+  "name": "Sepsis detection system",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -660,
+        -60
+      ],
+      "id": "9432b98e-19db-4c7f-bf21-8c3c3a1e7076",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "018bc420-f0fe-450e-998c-6ad7163237aa",
+              "leftValue": "={{$json.llm_response}}\n",
+              "rightValue": "YES",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        400,
+        -80
+      ],
+      "id": "bef38607-41e5-41d4-a999-de4c06649806",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "value": "public",
+          "mode": "list",
+          "cachedResultName": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "sepsis_alerts",
+          "mode": "list",
+          "cachedResultName": "sepsis_alerts"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "note": "={{$json.note}}",
+            "llm_response": "={{$json.llm_response}}",
+            "patient_id": "={{$json.patient_id}}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "patient_id",
+              "displayName": "patient_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "note",
+              "displayName": "note",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "llm_response",
+              "displayName": "llm_response",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "alert_time",
+              "displayName": "alert_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        600,
+        -180
+      ],
+      "id": "8f615617-cc3a-4d26-bf07-75bb3d87d619",
+      "name": "Postgres",
+      "credentials": {
+        "postgres": {
+          "id": "MgOMHrL1MiRO3hml",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C09BSF5K1NG",
+          "mode": "list",
+          "cachedResultName": "all-jaythrans-little-workspace"
+        },
+        "text": "=🚨 Sepsis Alert Detected 🚨\n\n👤 Patient ID: {{$json.patient_id}}\n📝 Note: {{$json.note}}\n🤖 AI Decision: {{$json.llm_response}}\n📅 Time: {{$now}}\n",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        780,
+        -260
+      ],
+      "id": "9e42c09d-3158-4d9c-b46e-5105a358fe7f",
+      "name": "Slack",
+      "webhookId": "2bc5edcf-ac0d-427d-a8fc-bb689afa55c7",
+      "credentials": {
+        "slackApi": {
+          "id": "in33sQwW3XJM2NaY",
+          "name": "Slack account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        220,
+        -300
+      ],
+      "id": "846a0f62-2948-4954-8801-f9bd5ba85f0e",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "sepsis_alerts",
+          "mode": "list",
+          "cachedResultName": "sepsis_alerts"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "patient_id": "={{$json.patient_id}}",
+            "note": "={{$json.note}}",
+            "llm_response": "={{$json.llm_response}}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "patient_id",
+              "displayName": "patient_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "note",
+              "displayName": "note",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "llm_response",
+              "displayName": "llm_response",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "alert_time",
+              "displayName": "alert_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        600,
+        40
+      ],
+      "id": "39f2605f-8226-47fe-a74c-ac0f2f5bb449",
+      "name": "Postgres1",
+      "credentials": {
+        "postgres": {
+          "id": "MgOMHrL1MiRO3hml",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C09BSF5K1NG",
+          "mode": "list",
+          "cachedResultName": "all-jaythrans-little-workspace"
+        },
+        "text": "=✅ No Sepsis Detected    👤 Patient ID: {{$json.patient_id}}   📝 Note: {{$json.note}}  ",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        800,
+        80
+      ],
+      "id": "5f7e5c0b-2dce-461e-baea-942a70ca2ff4",
+      "name": "Slack1",
+      "webhookId": "6a56f7e1-8ffc-42a1-9e39-1f242ba29db9",
+      "credentials": {
+        "slackApi": {
+          "id": "in33sQwW3XJM2NaY",
+          "name": "Slack account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "75ecb9da-5626-40b5-90be-28ceede33507",
+              "name": "patient_id",
+              "value": "20644",
+              "type": "string"
+            },
+            {
+              "id": "8f55c670-adb7-42e5-bc5a-78dd13ff4ee6",
+              "name": "note",
+              "value": "Patient has fever, low blood pressure and signs of infections",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -440,
+        -200
+      ],
+      "id": "5ea4097a-cbc4-4b8f-ad1e-d2122948fd20",
+      "name": "Simulated patient data"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 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"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"openai/gpt-3.5-turbo\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a medical assistant. Reply only with YES or NO.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Does this clinical note suggest sepsis? {{ $json.note }}\"\n    }\n  ]\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        80,
+        -120
+      ],
+      "id": "a138e84f-f9a7-4daa-9330-025595ba17a9",
+      "name": "AI Sepsis check"
+    },
+    {
+      "parameters": {
+        "url": "https://hapi.fhir.org/baseR4/Condition?_count=10",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/fhir+json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -440,
+        80
+      ],
+      "id": "c0f240f1-1534-454b-a47f-e78de14d652e",
+      "name": "FHIR data"
+    },
+    {
+      "parameters": {
+        "jsCode": "const bundle = JSON.parse($json.data);\n\nif (!bundle.entry || bundle.entry.length === 0) {\n  return [{ json: { message: \"No conditions found\" } }];\n}\n\n// Filter conditions that look like sepsis\nconst sepsisConditions = bundle.entry.filter(e => {\n  const condition = e.resource;\n  const display = condition.code?.coding?.[0]?.display?.toLowerCase() || \"\";\n  const note = condition.note?.[0]?.text?.toLowerCase() || \"\";\n  return display.includes(\"sepsis\") || note.includes(\"sepsis\");\n});\n\n// If sepsis conditions exist, pick from them, else fall back to all\nconst conditionsPool = sepsisConditions.length > 0 ? sepsisConditions : bundle.entry;\n\n// Pick a random condition from the chosen pool\nconst randomIndex = Math.floor(Math.random() * conditionsPool.length);\nconst condition = conditionsPool[randomIndex].resource;\n\nreturn [{\n  json: {\n    patient: condition.subject?.reference || \"Unknown\",\n    conditionCode: condition.code?.coding?.[0]?.display || \"Unknown condition\",\n    note: condition.note?.[0]?.text || \"No note\"\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -240,
+        -80
+      ],
+      "id": "235f5992-b4e5-4a68-94b5-40ad466bdebe",
+      "name": "Data Parser"
+    },
+    {
+      "parameters": {
+        "jsCode": "// We still have patient_id + note here\n// We'll attach the LLM response manually\nreturn [\n  {\n    json: {\n      patient_id: $json.patient_id,\n      note: $json.note,\n      llm_response: $items(\"AI Sepsis check\")[0].json.choices[0].message.content\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        280,
+        140
+      ],
+      "id": "ecf32a0d-70ab-48a6-9502-f702efc3b639",
+      "name": "AI Data Parser"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "FHIR data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Postgres",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Postgres1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres": {
+      "main": [
+        [
+          {
+            "node": "Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack": {
+      "main": [
+        []
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "AI Data Parser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres1": {
+      "main": [
+        [
+          {
+            "node": "Slack1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simulated patient data": {
+      "main": [
+        []
+      ]
+    },
+    "AI Sepsis check": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Slack1": {
+      "main": [
+        []
+      ]
+    },
+    "FHIR data": {
+      "main": [
+        [
+          {
+            "node": "Data Parser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data Parser": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "AI Sepsis check",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "AI Data Parser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Data Parser": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c1e6b11f-155e-4d64-a840-cd44fcb62145",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b8766b85bc73a6d1979b59a468eee00270250d237c4650e60b59288a8df89c8c"
+  },
+  "id": "R42Wo9PgNJaaXOpp",
+  "tags": []
+}
